@@ -11,6 +11,7 @@
 .bash_history
 .cache
 .compiz
+.config
 .dbus
 .dc++
 .ecryptfs
@@ -32,4 +33,5 @@ Downloads
 Music
 programs
 Public
+workspace
 Screenshots
