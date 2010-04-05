@@ -1,0 +1,258 @@
+######################################
+## .bashrc - User specific definitions
+######################################
+
+## Add entries to PATH if not already present
+function pathmunge () {
+    if ! echo $PATH | /bin/egrep -q "(^|:)$1($|:)" ; then
+        if [ "$2" = "after" ] ; then
+            PATH=$PATH:$1
+        else
+            PATH=$1:$PATH
+        fi
+    fi
+}
+
+## System-wide definitions
+[[ -f /etc/bashrc ]] && source /etc/bashrc
+[[ -f /etc/bash.bashrc ]] && source /etc/bash.bashrc
+[[ -f /etc/bash_completion ]] && source /etc/bash_completion
+
+## Account local definitions
+[[ -f ~/.bashrc_local ]] && source ~/.bashrc_local
+
+## From here it is all about interactive shell
+[[ $- == *i* ]] || return 0
+
+
+#############################################
+
+## Never glob . or .. when using .* 
+export GLOBIGNORE='.:..'
+
+## Shell options
+shopt -s cdspell      # Correct spelling
+shopt -s checkhash    # Look up commands
+shopt -s checkwinsize # Update LINES and COLUMNS after each command
+shopt -s extglob      # Pattern-matching glob features
+shopt -u dotglob      # Do not include .config files in normal glob
+shopt -u failglob     # Don't fail on nomatch, just leave the *'s in
+shopt -u nullglob     # Don't go to null on nomatch, just leave the *'s in
+
+#############################################
+
+## History options
+shopt -s cmdhist    # Save all lines of multi-line commands in history
+shopt -s histappend # Append to .bash_history on exit
+shopt -s histreedit # Edit failed history subs
+shopt -u histverify # Immediately execute history sub
+
+# Ignore duplicates and lines starting with space
+export HISTCONTROL="ignoreboth"
+
+# Reduce clutter in the history
+export HISTIGNORE='&:exit:fc:history:ht'
+
+# Timestamp the history entries (important!!)
+export HISTTIMEFORMAT="%Y-%m-%d %T "
+
+# Long session history (default is 500)
+export HISTSIZE=1000
+
+# Long history file (default is 500)
+export HISTFILESIZE=
+
+# M-w to grep the history for instances of current command
+bind '"\M-w"':"\"\C-k\C-ahistory | grep --color=never '^ *[-:/0-9 ]* *\C-e.'\C-m\""
+
+## History aliases
+function ht { history | grep "$(date +%Y-%m-%d)" $@; } # today's history
+alias h='history|grep' # grep history
+alias hu='history -n' # update history from file
+
+#############################################
+
+## ls aliases
+alias l='ls -l' # long listing
+alias ll='ls -l' # long listing
+alias l.='ls -ld .*' # dotfiles only
+alias l1='ls -1' # one-per-line
+alias la='ls -la' # include dotfiles
+alias lr='ls -R' # recursive listing
+alias lR='ls -laR' # all-inclusive recurse
+
+## Other aliases
+alias le='less -R' # interpret ascii codes
+alias v='less -R' # shorter than even 'le'
+alias psx='ps hwwaxfo pid,uname,nice,bsdstart,bsdtime,pcpu,pmem,rss,cmd'
+
+## Directory listing colours
+if [[ -f "$(type -p dircolors)" ]]; then
+    if [[ -f "~/.dircolors" ]]; then
+        eval $(dircolors -b "~/.dircolors")
+    else
+        eval $(dircolors -b)
+    fi
+fi
+
+## Colorize directory listing
+if [[ -n "$LS_COLORS" ]]; then
+    export GREP_OPTIONS="--color=auto"
+    alias ls='ls --color=auto'
+fi
+
+function d { ls -la "$@" | grep "^d"; } # list directories
+
+#############################################
+
+## Redefine 'which' to include aliases
+if which -v 2>&1 | grep -q GNU; then 
+    alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+fi
+
+## Set the title to host:dir, with history appending
+if [[ $TERM == @(rxvt|xterm) ]]; then
+    PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME%%.*}:${PWD/$HOME/~}\007"'
+else
+    export PROMPT_COMMAND="history -a;"
+fi
+
+## Set the prompt (user@host:/path$ or host:/path#)
+function prompt_colorator {
+  # $1 = user ANSI color attribute sequence
+  # $2 = host ANSI color attribute sequence
+  # $3 = path ANSI color attribute sequence
+
+  ## Common ANSI attribute sequences to set foreground color
+  # 01;31 = red
+  # 01;32 = green
+  # 01;33 = yellow
+  # 01;34 = blue
+  # 01;35 = magenta
+  # 01;36 = cyan
+  # 01;37 = white
+
+  # Example for green user and host, blue path
+  #export PS1="\[\033[01;32m\]\u@\h:\[\033[01;34m\]\w\[\033[00m\]\\$ "
+
+  local usr=""
+  [[ "$(id -u)" != 0 ]] && usr="\u@"
+  if [[ -n "$LS_COLORS" ]]; then
+      export PS1="\[\033[$1m\]${usr}\[\033[$2m\]\h:\[\033[$3m\]\w\[\033[00m\]\\$ "
+  else
+      export PS1="${usr}\h:\w\\$ "
+  fi
+  unset usr
+}
+
+# green user, yellow host, blue path
+prompt_colorator "01;32" "01;33" "01;34"
+
+## Python interpreter customisation
+export PYTHONSTARTUP="$HOME/.pythonrc.py"
+ 
+## Pager options
+export PAGER=less
+export LESS='--LONG-PROMPT --RAW-CONTROL-CHARS'
+
+## Use default lesspipe if available, else custom 
+if [[ -x "/usr/bin/lesspipe" ]]; then
+    eval "$(/usr/bin/lesspipe)"
+elif [[ -x "/usr/bin/lesspipe.sh" ]]; then
+    eval "$(/usr/bin/lesspipe.sh)"
+elif [[ -x "$HOME/.lesspipe.sh" ]]; then
+    export LESSOPEN="|$HOME/.lesspipe.sh %s"
+    # For cygwin, escape any spaces in LESSOPEN
+    if [[ "$(uname)" == *CYGWIN* ]]; then
+        export LESSOPEN="|$(echo $HOME|sed 's/\ /\\\ /g')/.lesspipe.sh %s"
+    fi
+fi
+
+#############################################
+
+## Top-10 processes by memory usage
+function ps10 {
+    ps aux | sort -nk +4 | tail "$@"
+}
+
+## Confirm for cp/mv/rm
+function careful {
+    if [[ "$1" == "off" ]]; then
+        unalias rm cp mv
+        echo "rm, cp and mv are now non-interactive."
+    else
+        alias rm="rm -i"; alias cp="cp -i"; alias mv="mv -i"
+  	echo "rm, cp, and mv are now interactive."
+    fi
+}
+
+## Clean out editor backup files 
+function rmtilde() {
+    [[ "$1" == "-h" ]] || [[ -z "$1" ]] && { echo "Usage: rmtilde <top-directory>"; return; }
+    echo "Removing tilde-backup files under $1"
+    find "$1" -name '*~' -print -delete
+}
+
+## Prepend time to the prompt
+function timeprompt {
+    echo "Adding time and history number to prompt."
+    export PS1="\! [\t] $PS1";
+}
+
+## Call args every N seconds with timestamp prepended
+function watchnlog {
+    [[ "$1" == "-h" ]] || [[ -z "$1" ]] && { echo "Usage: watchnlog <sleep> <command-line>"; return; }
+    local SLEEPLEN=$1; shift
+    while true; do
+        { date '+[%Y-%m-%d %H:%M:%S]'; "$@"; echo; } 
+        sleep $SLEEPLEN || return
+    done 
+}
+
+## Add . and .. and ~ to cd auto-completion 
+function cdpath { 
+    echo "Adding parent and home-dir to CDPATH"
+    export CDPATH=".:..:~"
+}
+
+## Prints a header and cats all files under specified directory
+function catemall {
+    [[ "$1" == "-h" ]] || [[ -z "$1"  ]] && { echo "Usage: catemall <top-directory> <file-name> <lines>"; return; }
+    local TOP="$1"; local FNAME="$2"; local LINES="$3"
+    local catcmd="cat"
+    [[ -n "$LINES" ]] && catcmd="head -n $LINES"
+    find "$TOP" -xdev -name '.bzr' -prune -o -name "$FNAME" -printf "\n## %p (%s) [%t]\n" -exec $catcmd {} \;
+}
+
+## Tail + Less function for massive log files
+function tless {
+    tail "$@" | less
+}
+
+## Colourful case-insensitive 'grep'
+function cgrep() {
+    grep --line-number --ignore-case --color=always "$@" | less -R; 
+}
+
+## Less with syntax highlighting
+if [[ -x "$(type -p source-highlight)" ]]; then
+    function hless() { 
+        INFILE="$1"; shift
+        source-highlight --out-format=esc --style-file=$HOME/.esc.style --output=STDOUT --input="$INFILE" "$@" | less -R; 
+    }
+    alias hl=hless
+fi
+
+## Import SSH agent environment into existing screen session
+if [[ -x "$(type -p screen)" ]]; then
+    function grabssh { 
+        SSHVARS="SSH_CLIENT SSH_TTY SSH_AUTH_SOCK SSH_CONNECTION DISPLAY"
+        for x in ${SSHVARS} ; do
+            (eval echo $x=\$$x) | sed  's/=/="/
+                                       s/$/"/
+                                       s/^/export /'
+        done
+    }
+    alias screen_attach='grabssh > $HOME/.fixssh; screen -d -R'
+    alias screen_fixssh='source $HOME/.fixssh'
+fi

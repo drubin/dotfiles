@@ -1,0 +1,11 @@
+XTerm*faceName: terminus
+XTerm*faceSize: 10
+
+#Url selection
+xterm*charClass: 33:48,36-47:48,58-59:48,61:48,63-64:48,95:48,126:48 
+
+#allows you to paste highlighted text into other applications
+XTerm*VT100.translations: #override <Btn1Up>: select-end(PRIMARY, CLIPBOARD, CUT_BUFFER0)
+
+#don't know what this does but Vaughan gave it to me
+XTerm*metaSendsEscape: true
