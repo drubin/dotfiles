@@ -1,0 +1,54 @@
+## Do not glob . or .. when using .*
+#based on a .bashrc by Graham Poulter, licensed under Creative Commons Attribution 3.0
+#http://www.grahampoulter.com/projects-1/linux-rc-files
+
+export GLOBIGNORE='.:..'
+
+## Shell options
+shopt -s cdspell      # Correct spelling
+shopt -s checkhash    # Look up commands
+shopt -s checkwinsize # Update LINES and COLUMNS after each command
+shopt -s extglob      # Pattern-matching glob features
+shopt -u dotglob      # Do not include .config files in normal glob
+shopt -u failglob     # Don't fail on nomatch, just leave the *'s in
+shopt -u nullglob     # Don't go to null on nomatch, just leave the *'s in
+
+## History options
+shopt -s cmdhist    # Save all lines of multi-line commands in history
+shopt -s histappend # Append to .bash_history on exit
+shopt -s histreedit # Edit failed history subs
+shopt -u histverify # Immediately execute history sub
+
+# Ignore duplicates and lines starting with space
+export HISTCONTROL="ignoreboth"
+
+# Reduce clutter in the history
+export HISTIGNORE='&:exit:fc:history:ht'
+
+# Timestamp the history entries (important!!)
+export HISTTIMEFORMAT="%Y-%m-%d %T "
+
+# Long session history (default is 500)
+export HISTSIZE=3000
+
+# Long history file (default is 500)
+export HISTFILESIZE=50000
+
+## History aliases
+
+# Today's history
+function ht { history | grep "$(date +%Y-%m-%d)" $@; }
+
+# Grep history
+alias h='history|grep'
+
+# Update history from other shells
+alias hu='history -n' 
+
+## Set the title to host:dir, with history appending
+if [[ $TERM == @(rxvt|xterm) ]]; then
+    PROMPT_COMMAND='history -a; echo -ne "\033]0;${HOSTNAME%%.*}:${PWD/$HOME/~}\007"'
+else
+    export PROMPT_COMMAND="history -a;"
+fi
+

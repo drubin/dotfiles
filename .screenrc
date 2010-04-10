@@ -1,0 +1,6 @@
+startup_message off
+defutf8 on
+caption always "%{Yb}%D %Y-%02m-%02d %0c %{k}|%{G} %l %{k}|%{W} %-w%{G}%n %t%{W}%+w %="
+hardstatus alwayslastline
+hardstatus string '%{= kw}%H%='
+

@@ -1,0 +1,34 @@
+# -*- sh -*-
+#based on a .bashrc by Graham Poulter, licensed under Creative Commons Attribution 3.0
+#http://www.grahampoulter.com/projects-1/linux-rc-files
+
+## ANSI attribute sequences for setting foreground color
+function ansifg {
+  case $1 in
+    red) echo "01;31" ;;
+    green) echo "01;32" ;;
+    yellow) echo "01;33" ;;
+    blue) echo "01;34" ;;
+    magenta) echo "01;35" ;;
+    cyan) echo "01;36" ;;
+    white) echo "01;37" ;;
+  esac
+}
+
+## Set promt colors: user to $1, host to $2 and path to $3
+## Prompt itself is user@host:/path$ or host:/path#
+function prompt_colorator {
+  # Example for green user and host, blue path
+  #export PS1="\[\033[01;32m\]\u@\h:\[\033[01;34m\]\w\[\033[00m\]\\$ "
+  local usr=""
+  local extra=""
+  [[ "$(id -u)" != 0 ]] && usr="\u@"
+  [[ -n "$VIMRUNTIME" ]] && extra="[vim] "
+  if [[ -n "$LS_COLORS" ]]; then
+      export PS1="$extra\[\033[$1m\]${usr}\[\033[$2m\]\h:\[\033[$3m\]\w\[\033[00m\]\\$ "
+  else
+      export PS1="$extra${usr}\h:\w\\$ "
+  fi
+}
+
+#prompt_colorator `ansifg green` `ansifg magenta` `ansifg blue`

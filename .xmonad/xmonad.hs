@@ -143,7 +143,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
 	-- Take a screenshot
  
-	, ((modm,				xK_s	 ),	spawn "scrot '~/Screenshots/%Y-%m-%d-%H%M%S.png'" )
+	, ((modm,				xK_s	 ),	spawn "scrot '/home/drubin/Screenshots/%Y-%m-%d-%H%M%S.png'" )
     -- Move focus to the next window
     , ((modm,               xK_Tab   ), windows W.focusDown)
  

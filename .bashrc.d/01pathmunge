@@ -1,0 +1,14 @@
+# -*- sh -*-
+#based on a .bashrc by Graham Poulter, licensed under Creative Commons Attribution 3.0
+#http://www.grahampoulter.com/projects-1/linux-rc-files
+
+## RedHat function to modify PATH without redundant entries
+function pathmunge {
+    if ! echo $PATH | /bin/egrep -q "(^|:)$1($|:)" ; then
+        if [ "$2" = "after" ] ; then
+            PATH=$PATH:$1
+        else
+            PATH=$1:$PATH
+        fi
+    fi
+}

@@ -1,0 +1,153 @@
+# -*- sh -*-
+#based on a .bashrc by Graham Poulter, licensed under Creative Commons Attribution 3.0
+#http://www.grahampoulter.com/projects-1/linux-rc-files
+
+### Useful commands:
+# chkconfig : manage initscripts on red hat
+
+function ? { awk "BEGIN{ print $* }" ;}
+# easy calculator: concalc<<<'sin(32^(1/3))'
+# bash arithmetic: echo $[3+5]
+# bc arithmetic: bc -l<<<3/7
+# gp number theory: gp -qf<<<'123456! + 0.'
+
+## Get full/absolute path to $1
+alias abspath='readlink -f'
+
+## Use emacsclient
+alias e="emacsclient -n -a emacs"
+
+## Make directory and change into it
+function mkcd { [ -n "$1" ] && mkdir -p "$@" && cd "$1"; }
+
+## Search Command-Line Fu for $@
+function cmdfu { curl "http://www.commandlinefu.com/commands/matching/$@/$(echo -n $@ | openssl base64)/plaintext"; }
+
+## Search Google for $@
+function google { curl -A Mozilla http://www.google.com/search?q=$@ |html2text -width 80; }
+
+## Get unread Gmail
+function gmail {
+    curl -u graham.poulter --silent "https://mail.google.com/mail/feed/atom" | perl -ne 'print "\t" if /<name>/; print "$2\n" if /<(title|name)>(.*)<\/\1>/;';
+}
+
+## Colourful 'grep' for $@
+function cgrep {
+    grep --line-number --color=always "$@" | less -R;
+}
+
+## Redefine 'which' to include aliases
+if which -v 2>&1 | grep -q GNU; then
+function md { mkdir -p "$@" && cd "$@"; }
+    alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+fi
+
+## Display top-10 processes by memory usage
+function ps10 {
+    ps aux | sort -nk +4 | tail "$@"
+}
+
+## Remove $1 from PATH
+function pathrm {
+    export PATH=`echo $PATH | sed -e "s=^${1}:==;s=:${1}$==;s=:${1}:=:="`;
+}
+
+## Find exectuables in PATH, grepping names for $@
+function pathgrep {
+    find ${PATH//:/ } -executable -type f -printf "%f\n" | grep "$@"
+}
+
+## Sort PATH, leaving only unique elements
+function pathuniq {
+    export PATH=$(echo $PATH | sed 's/:/\n/g' | sort -u | sed -e '1{$p;x;d;};{H;$!d;x;s/\n/:/g;b;};x;s/\n//g;${p;x;}')
+}
+
+## Confirm for cp/mv/rm
+function careful {
+    if [[ "$1" == "off" ]]; then
+        unalias rm cp mv
+        echo "rm, cp and mv are now non-interactive."
+    else
+        alias rm="rm -i"; alias cp="cp -i"; alias mv="mv -i"
+        echo "rm, cp, and mv are now interactive."
+    fi
+}
+
+## Removed tilde-files found under $1
+function rmtilde() {
+    [[ "$1" == "-h" ]] || [[ -z "$1" ]] && { echo "Usage: rmtilde <top-directory>"; return; }
+    echo "Removing tilde-backup files under $1"
+    find "$1" -name '*~' -print -delete
+}
+
+## Prepend time and history to the prompt
+function timeprompt {
+    echo "Adding time and history number to prompt."
+    export PS1="\! [\t] $PS1";
+}
+
+## Call $@ every $1 seconds
+function watchnlog {
+    [[ "$1" == "-h" ]] || [[ -z "$1" ]] && { echo "Usage: watchnlog <sleep> <command-line>"; return; }
+    local SLEEPLEN=$1; shift
+    while true; do
+        { date '+[%Y-%m-%d %H:%M:%S]'; "$@"; echo; }
+        sleep $SLEEPLEN || return
+    done
+}
+
+## Cat all files under $1, having name $2, printing first $3 lines.
+function catemall {
+    [[ "$1" == "-h" ]] || [[ -z "$1"  ]] && { echo "Usage: catemall <top-directory> <file-name> <lines>"; return; }
+    local TOP="$1"; local FNAME="$2"; local LINES="$3"
+    local catcmd="cat"
+    [[ -n "$LINES" ]] && catcmd="head -n $LINES"
+    find "$TOP" -xdev -name '.bzr' -prune -o -name "$FNAME" -printf "\n## %p (%s) [%t]\n" -exec $catcmd {} \;
+}
+
+## Less with syntax highlighting
+if [[ -x "$(type -p source-highlight)" ]]; then
+    function hless() {
+        INFILE="$1"; shift
+        source-highlight --out-format=esc --style-file=$HOME/.esc.style --output=STDOUT --input="$INFILE" "$@" | less -R;
+    }
+    alias hl=hless
+fi
+
+## Import SSH agent environment into existing screen session
+if [[ -x "$(type -p screen)" ]]; then
+    function grabssh {
+        SSHVARS="SSH_CLIENT SSH_TTY SSH_AUTH_SOCK SSH_CONNECTION DISPLAY"
+        for x in ${SSHVARS} ; do
+            (eval echo $x=\$$x) | sed  's/=/="/
+                                       s/$/"/
+                                       s/^/export /'
+        done
+    }
+    alias screen_attach='grabssh > $HOME/.fixssh; screen -d -R'
+    alias screen_fixssh='source $HOME/.fixssh'
+fi
+
+## Get geographic location for IP address
+function geoip {
+    IP="$1"
+    if [[ -z "$1" ]]; then
+       IP=$(curl -s icanhazip.com)
+    fi
+    curl -s "http://www.geody.com/geoip.php?ip=$IP" | sed '/^IP:/!d;s/<[^>][^>]*>//g'
+}
+
+## Quote URL parameters using Python
+function urlquote {
+    python -c "import urllib; print urllib.quote_plus(\"$*\")"
+}
+
+## Learn what the commands are in a directory
+function learn {
+    ls $1 | xargs whatis | grep -v nothing | less
+}
+
+## See what services are running here
+function whatsopen {
+    sudo nmap -sS -O 127.0.0.1
+}

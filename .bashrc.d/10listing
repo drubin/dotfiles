@@ -1,0 +1,72 @@
+#based on a .bashrc by Graham Poulter, licensed under Creative Commons Attribution 3.0
+#http://www.grahampoulter.com/projects-1/linux-rc-files
+
+## ls aliases
+alias l='ls -l'      # long listing
+alias ll='ls -lhvrt'     # long listing
+alias l.='ls -ld .*' # dotfiles only
+alias l1='ls -1'     # one file per line
+alias la='ls -la'    # list all files
+alias lr='ls -R'     # recursive listing
+alias lR='ls -laR'   # all-inclusive recurse
+alias lld='ls -lUd */' # list directories
+
+## Up-directory aliases
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias -- -="cd -"
+
+## Other aliases
+alias le='less -R' # interpret ascii codes
+alias v='less -R'  # shorter than even 'le'
+alias psx='ps hwwaxfo pid,uname,nice,bsdstart,bsdtime,pcpu,pmem,rss,cmd'
+
+## Directory listing colours
+if [[ -f "$(type -p dircolors)" ]]; then
+    if [[ -f "~/.dircolors" ]]; then
+        eval $(dircolors -b "~/.dircolors")
+    else
+        eval $(dircolors -b)
+    fi
+fi
+
+## Colorize directory listing
+if [[ -n "$LS_COLORS" ]]; then
+    export GREP_OPTIONS="--color=auto"
+    alias ls='ls --color=auto'
+fi
+
+## Display a preview of what LS_COLORS will do
+function colorpreview {
+   (
+       [ "$LS_COLORS" ] || eval $(dircolors)
+       [ "$LS_COLORS" ] || eval $(TERM=xterm dircolors)
+       printf "$LS_COLORS"
+   ) | tr : '\n' |
+   sed 's/\([^=]*\)=\(.*\)/\x1b[\2m\1\x1b[0m\t\2/'
+}
+
+## Python interpreter customisation
+if [[ -f "$HOME/.pythonrc.py" ]]; then
+  export PYTHONSTARTUP="$HOME/.pythonrc.py"
+fi
+
+## Pager options
+export PAGER=less
+export LESS='--LONG-PROMPT --RAW-CONTROL-CHARS'
+
+## Use default lesspipe if available, else custom
+if [[ -x "/usr/bin/lesspipe" ]]; then
+    export LESSOPEN="/usr/bin/lesspipe %s"
+elif [[ -x "/usr/bin/lesspipe.sh" ]]; then
+    export LESSOPEN="/usr/bin/lesspipe.sh %s"
+elif [[ -x "$HOME/.lesspipe.sh" ]]; then
+    export LESSOPEN="|$HOME/.lesspipe.sh %s"
+    # For cygwin, escape any spaces in LESSOPEN
+    if [[ "$(uname)" == *CYGWIN* ]]; then
+        export LESSOPEN="|$(echo $HOME|sed 's/\ /\\\ /g')/.lesspipe.sh %s"
+    fi
+fi
+
+

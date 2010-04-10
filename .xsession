@@ -19,8 +19,14 @@ xmonad &
 nautilus --no-default-window &
 gnome-power-manager &
 gnome-settings-daemon &
+/usr/lib/gnome-session/helpers/gnome-settings-daemon-helper &
+seahorse-daemon &
+gnome-keyring-daemon &
 nm-applet &
 synergyc waffles &
 xterm &
 
+export GNOME-KEYRING-SOCKET
+export GNOME-KEYRING-PID
+export `gnome-keyring-daemon -s -c ssh,pkcs11`
 wait %xmonad
