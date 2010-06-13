@@ -52,9 +52,11 @@ import XMonad.Layout.MultiToggle.Instances
 -- Exit stuff
 import System.IO
 import System.Exit
+import XMonad.Hooks.SetWMName
+
 
 myTerminal    = "/usr/bin/xterm"
-myStartupHook = return ()
+myStartupHook = setWMName "LG3D"
 
 
 -- | Strip xmobar markup. Useful to remove ppHidden color from ppUrgent
