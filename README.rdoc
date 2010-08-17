@@ -1,0 +1,20 @@
+= David Rubin Dot Files
+
+These are my config file. Do with them what you please.
+
+== Installation
+
+  git clone git://github.com/david/dotfiles ~/.dotfiles
+  cd ~/.dotfiles
+  rake install
+
+== Environment
+
+I am currently running Ubuntu Lucid, with xmonad as my window manager. Hopefully if you aren't running the exact same setup these configs will help you as well.
+
+== Bash
+I currently am running a modular bash plugin system. Thanks to Graham ( http://www.grahampoulter.com/projects-1/linux-rc-files ) mostly stolen from his.
+
+Basically makes it easier to add and remove features by simply not including them in ~/.bashrc.d/ directory.
+
+
