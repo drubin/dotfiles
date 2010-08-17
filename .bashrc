@@ -14,3 +14,6 @@
 for script in ~/.bashrc.d/*; do
   source "$script"
 done
+
+## Source system local bashrc stuff
+source ~/.bashrc.local
