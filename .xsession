@@ -24,6 +24,7 @@ seahorse-daemon &
 gnome-keyring-daemon &
 nm-applet &
 synergyc waffles &
+dropbox start &
 xterm &
 
 export GNOME-KEYRING-SOCKET
