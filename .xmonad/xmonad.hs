@@ -85,7 +85,7 @@ myNormalBorderColor = "#000000"
 myFocusedBorderColor = "#A0A0D0"
 
 -- workspaces
-myWorkspaces = ["1", "web", "email","4","5","6","7","fullscreen","im"]
+myWorkspaces = ["1", "web", "email","4","im","6","7","fullscreen","9"]
 isFullscreen = (== "fullscreen")
 
 -- layouts
@@ -116,7 +116,7 @@ floatManageHooks = composeAll [isFloat --> doFloat] where
     isFloat = foldr1 (<||>) [isDo, isGimp, isFirefoxDialog, isPidginDialog, isVMDdialog] where
         isDo   = className =? "Do"
         isGimp = className =? "Gimp-2.6..."
-        isFirefoxDialog = className =? "Namoroka" <&&> (resource =? "Browser" <||> resource =? "Toplevel")
+        isFirefoxDialog = className =? "FireFox" <&&> (resource =? "Browser" <||> resource =? "Toplevel")
         isPidginDialog  = className =? "Pidgin" <&&> foldr1 (<||>) [
             title =? "Accounts", title =? "System Log", title =? "Plugins",
             title =? "Room List", title =? "Custom Smiley Manager",
@@ -128,7 +128,7 @@ imManageHooks = composeAll [isIM --> moveToIM] where
     isSkype  = className =? "Skype"
     moveToIM = doF $ S.shift "im"
 webManageHooks = composeAll [isWeb --> moveToWeb] where
-    isWeb     = className =? "Namoroka"
+    isWeb     = className =? "FixFox"
     moveToWeb = doF $ S.shift "web"
 staloneManageHooks = composeAll [isStalone --> doIgnore] where
     isStalone = resource =? "stalonetray"
@@ -171,7 +171,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 	, ((modm .|. shiftMask,	xK_Left	), shiftToPrev)
 	, ((modm .|. shiftMask,	xK_Right),shiftToNext)
     , ((modm .|. shiftMask, xK_l ), spawn "xscreensaver-command -lock")         -- Lock the screen
-	, ((modm .|. shiftMask,	xK_s	),	spawn "suspend.sh Suspend")             -- Suspend	
+	, ((modm .|. shiftMask,	xK_s	),	spawn "gksudo pm-suspend")             -- Suspend	
 	, ((modm .|. shiftMask,	xK_h	),	spawn "suspend.sh Hibernate")           -- Hibernate
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))              -- Quit xmonad
     , ((modm, xK_q), restart "xmonad" True)                                     -- Restart xmonad, ie reload config
