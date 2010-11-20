@@ -1,9 +1,12 @@
-XTerm*faceName: terminus
-XTerm*faceSize: 10
-XTerm*background: black
-XTerm*foreground: white
-xterm*charClass: 33:48,36-47:48,58-59:48,61:48,63-64:48,95:48,126:48 
+UXTerm*utf8:   1
+UXTerm*faceName: terminus
+UXTerm*faceSize: 10
+UXTerm*background: black
+UXTerm*foreground: white
+Uxterm*charClass: 33:48,36-47:48,58-59:48,61:48,63-64:48,95:48,126:48 
 
-XTerm*VT100.translations: #override <Btn1Up>: select-end(PRIMARY, CLIPBOARD, CUT_BUFFER0)
+UXTerm*VT100.translations: #override <Btn1Up>: select-end(PRIMARY, CLIPBOARD, CUT_BUFFER0)
 
-XTerm*metaSendsEscape: true
+UXTerm*metaSendsEscape: true
+
+

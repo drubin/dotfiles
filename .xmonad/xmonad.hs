@@ -55,7 +55,7 @@ import System.Exit
 import XMonad.Hooks.SetWMName
 
 
-myTerminal    = "/usr/bin/xterm"
+myTerminal    = "/usr/bin/uxterm"
 myStartupHook = setWMName "LG3D"
 
 
@@ -151,7 +151,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm, xK_space ), sendMessage NextLayout)                               -- Rotate through the available layout algorithms
     , ((modm .|. shiftMask, xK_space ), setLayout $ XMonad.layoutHook conf)     --  Reset the layouts on the current workspace to default
     , ((modm, xK_n), refresh)                                                   -- Resize viewed windows to the correct size
-	, ((modm, xK_s), spawn "scrot ~/Screenshots/%Y-%m-%d-%H%M%S.png" )	        -- Take a screenshot
+	, ((modm, xK_s), spawn "scrot --select ~/Screenshots/%Y-%m-%d-%H%M%S.png" )	        -- Take a screenshot
     , ((modm, xK_Tab ), windows W.focusDown)                                    -- Move focus to the next window
     , ((modm, xK_j), windows W.focusDown)                                       -- Move focus to the next window
     , ((modm, xK_k), windows W.focusUp  )                                       -- Move focus to the previous window

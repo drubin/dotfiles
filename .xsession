@@ -23,9 +23,8 @@ gnome-settings-daemon &
 seahorse-daemon &
 gnome-keyring-daemon &
 nm-applet &
-synergyc waffles &
 dropbox start &
-xterm &
+uxterm &
 
 export GNOME-KEYRING-SOCKET
 export GNOME-KEYRING-PID
