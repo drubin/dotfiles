@@ -5,7 +5,9 @@
 [[ -f /etc/bash.bashrc ]] && source /etc/bash.bashrc
 
 ## Stop for non-interactive shells
-[[ $- == *i* ]] || return 0
+if [[ $- != *i* ]]; then
+   return 0
+fi
 
 ## Load system-wide completions
 [[ -f /etc/bash_completion ]] && source /etc/bash_completion
@@ -15,5 +17,9 @@ for script in ~/.bashrc.d/*; do
   source "$script"
 done
 
+export DEBEMAIL="davidrub@gmail.com"
+export DEBULLNAME="David Rubin"
+
 ## Source system local bashrc stuff
 source ~/.bashrc.local
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
