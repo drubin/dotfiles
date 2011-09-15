@@ -1,0 +1,43 @@
+## Detect git/hg/bzr/svn version control branch setting BRANCH
+## Only handles the vcs if its binary is found in $PATH
+## Very fast. Avoids calling "bzr nick" because it can be very slow.
+function set_branch {
+  type -t cl_dirname &>/dev/null || alias cl_dirname=dirname
+  local dir="$PWD"
+  local vcs
+  while [[ "${dir}" != "/" ]]; do
+    for vcs in git hg svn bzr; do
+      if [[ -d "${dir}/.${vcs}" ]] && hash $vcs &>/dev/null; then
+        case ${vcs} in
+          git)
+            BRANCH=$(git branch 2>/dev/null \
+              | sed -e '/^[^*]/d' -e 's/\* //');;
+          hg)
+            BRANCH=$(hg branch 2>/dev/null);;
+          svn)
+            BRANCH=$(svn info 2>/dev/null\
+              | grep -e '^Repository Root:'\
+              | sed -e 's#.*/##');;
+          bzr)
+            local conf="${dir}/.bzr/branch/branch.conf"
+            if [[ -f ${conf} ]]; then
+              BRANCH=$(grep -E '^nickname =' "${conf}"\
+                  | cut -d' ' -f 3)
+              if [[ -z $BRANCH ]]; then
+                BRANCH=$(basename "${dir}")
+              fi
+            else
+              unset BRANCH
+            fi;;
+        esac
+        return 0
+      fi
+    done
+    dir="$(cl_dirname ${dir})"
+  done
+  unset BRANCH
+}
+
+## Prepend version control branch to prompt
+export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND;} set_branch"
+export PS1="\${BRANCH:+[\${BRANCH}] }${PS1}";
